@@ -6,5 +6,5 @@ Una api basada en microservicios que maneja las ordenes, el control del inventar
 
 ## Tech Stack
 
-**Server:** Spring-bot, Java, Maven, Kafka,Oauth2 con Keycloak
+**Server:** Spring-bot 3.2.3, Java 21, Maven, Kafka,Oauth2 con Keycloak
 
