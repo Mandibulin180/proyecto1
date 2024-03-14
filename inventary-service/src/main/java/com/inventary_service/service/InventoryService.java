@@ -25,23 +25,23 @@ public class InventoryService {
     }
 
     public BaseResponse areInStock(List<OrderItemsRequest> orderItems) {
+
         var errorList = new ArrayList<String>();
 
         List<String> skus = orderItems.stream().map(OrderItemsRequest::getSku).toList();
 
-        List<Inventory> invenrotyList = inventoryRepository.findBySkuIn(skus);
+        List<Inventory> inventoryList = inventoryRepository.findBySkuIn(skus);
 
-        orderItems.forEach( orderitem -> {
-            var inventory = invenrotyList.stream().filter(value -> value.getSku().equals(orderitem.getSku())).findFirst();
-            if(inventory.isEmpty()){
-                errorList.add("Product with sku " + orderitem.getSku() + " does not exist");
-            }else if(inventory.get().getQuantity() < orderitem.getQuantity()){
-                errorList.add("Product with sku " + orderitem.getSku() + "has insufficient quantity");
+        orderItems.forEach(orderItem -> {
+            var inventory = inventoryList.stream().filter(value -> value.getSku().equals(orderItem.getSku())).findFirst();
+            if (inventory.isEmpty()) {
+                errorList.add("Product with sku " + orderItem.getSku() + " does not exist");
+            } else if (inventory.get().getQuantity() < orderItem.getQuantity()) {
+                errorList.add("Product with sku " + orderItem.getSku() + " has insufficient quantity");
             }
         });
 
         return errorList.size() > 0 ? new BaseResponse(errorList.toArray(new String[0])) : new BaseResponse(null);
-        
     }
 
     

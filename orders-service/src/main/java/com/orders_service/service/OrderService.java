@@ -3,6 +3,7 @@ package com.orders_service.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -11,10 +12,15 @@ import com.orders_service.dto.OrderItemsRequest;
 import com.orders_service.dto.OrderItemsResponse;
 import com.orders_service.dto.OrderRequest;
 import com.orders_service.dto.OrderResponse;
+import com.orders_service.events.OrderEvents;
 import com.orders_service.models.Order;
 import com.orders_service.models.OrderItems;
+import com.orders_service.models.OrderStatus;
 import com.orders_service.repository.OrderRepository;
+import com.orders_service.utils.JsonUtils;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,12 +28,15 @@ import lombok.RequiredArgsConstructor;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final KafkaTemplate<String,String> kafkaTemplate;
     private final WebClient.Builder webClientBuilder;
+    private final ObservationRegistry observationRegistry;
 
     public OrderResponse placeOrder(OrderRequest orderRequest){
-        // TODO check for inventory
 
-        BaseResponse result = this.webClientBuilder.build()
+        Observation inventoryObservation = Observation.createNotStarted("inventaory-service", observationRegistry);
+        return inventoryObservation.observe(()->{
+            BaseResponse result = this.webClientBuilder.build()
             .post()
             .uri("lb://inventory-service/api/inventory/in-stock")
             .bodyValue(orderRequest.getOrderItems())
@@ -35,16 +44,23 @@ public class OrderService {
             .bodyToMono(BaseResponse.class)
             .block(); 
 
-        if(result != null && !result.hasErrors()){
-            Order order = new Order();
-            order.setOrdernumber(UUID.randomUUID().toString());
-            order.setOrderItems(orderRequest.getOrderItems().stream()
-            .map(orderItemRequest -> mapOrderItemRequestToOrderItem(orderItemRequest,order)).toList());
-            var savedOrder = this.orderRepository.save(order);
-            return mapToOrderResponse(savedOrder);
-        }else{
-            throw new IllegalArgumentException("Some of the products are not in stock");
-        }
+            if(result != null && !result.hasErrors()){
+                Order order = new Order();
+                order.setOrdernumber(UUID.randomUUID().toString());
+                order.setOrderItems(orderRequest.getOrderItems().stream()
+                .map(orderItemRequest -> mapOrderItemRequestToOrderItem(orderItemRequest,order)).toList());
+                var savedOrder = this.orderRepository.save(order);
+                
+                // TODO Send message to order topic
+                this.kafkaTemplate.send("order-events",JsonUtils.toJson(
+                new OrderEvents(savedOrder.getOrdernumber(), savedOrder.getOrderItems().size(), OrderStatus.PLACED)
+                ));
+                
+                return mapToOrderResponse(savedOrder);
+            }else{
+                throw new IllegalArgumentException("Some of the products are not in stock");
+            }
+        }); 
     }
 
     public List<OrderResponse> getAllOrders(){

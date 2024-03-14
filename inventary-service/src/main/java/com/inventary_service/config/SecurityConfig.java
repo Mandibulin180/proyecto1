@@ -23,7 +23,10 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
             .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(http -> http.anyRequest().authenticated())
+            .authorizeHttpRequests(http -> {
+                http.requestMatchers(request -> request.getRequestURI().contains("/actuator/inventory")).permitAll();
+                http.anyRequest().authenticated();
+            })
             .oauth2ResourceServer(oauth ->{
                 oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter));
             })
