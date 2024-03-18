@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,10 +27,14 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('admin')")
-    public void addProduct(@RequestBody ProductRequest productRequest){
-        productService.addProduct(productRequest);
+    public ResponseEntity<String> addProduct(@RequestBody ProductRequest productRequest)throws Exception{
+        try {
+            productService.addProduct(productRequest);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("El sku debe ser unico",HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping
