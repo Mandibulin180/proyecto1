@@ -1,4 +1,4 @@
-package com.orders_service.config;
+package com.products_service.config;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +23,5 @@ public class WebClientConfig {
     public WebClient webClient(WebClient.Builder builder){
         return builder.build();
     }
-
-
     
 }

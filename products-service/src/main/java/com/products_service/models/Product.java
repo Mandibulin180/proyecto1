@@ -31,8 +31,6 @@ public class Product {
     private Long id;
     @Column(unique = true)
     private String sku;
-    @OneToOne(mappedBy = "product")
-    private Inventory inventorySku;
     private String name;
     private String description;
     private Double price;

@@ -8,17 +8,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class ProductResponse {
-
+@NoArgsConstructor
+@AllArgsConstructor
+public class Inventory {
+    private Long quantity;
     private String sku;
-    private String name;
-    private String description;
-    private Double price;
-    private String status;
-    
 }
