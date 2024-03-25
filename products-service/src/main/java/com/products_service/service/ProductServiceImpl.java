@@ -4,12 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import reactor.core.publisher.Mono;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
-import com.products_service.dto.Inventory;
 import com.products_service.dto.ProductRequest;
 import com.products_service.dto.ProductResponse;
 import com.products_service.models.Product;
@@ -17,7 +13,6 @@ import com.products_service.repository.ProductRepository;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import java.lang.Exception;
 
 @Service
@@ -43,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
 
         webClient.post()
             .uri("lb://inventory-service/api/inventory")
-            .bodyValue(data);
+            .bodyValue(data)
             .retrieve()
             .bodyToMono(String.class)
             .block();
