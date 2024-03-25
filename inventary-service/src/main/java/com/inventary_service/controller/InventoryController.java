@@ -3,8 +3,10 @@ package com.inventary_service.controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
@@ -42,6 +44,35 @@ public class InventoryController {
     public ResponseEntity<Object> createInventory(@RequestBody Product product){
         return new ResponseEntity<>(inventoryService.createInventory(product),HttpStatus.CREATED);
     }
+
+    @PutMapping("/add")
+    public ResponseEntity<String> addInventory(@RequestParam() String sku,@RequestParam() int quantity) throws Exception{
+        try {
+            inventoryService.updateInventory(sku, quantity,"agregar");
+
+            return new ResponseEntity<>("Inventory updated successfully",HttpStatus.CREATED);
+        } catch (Exception e) {
+                return new ResponseEntity<>("Sku no encontrado",HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/remove")
+    public ResponseEntity<String> removeInventory(@RequestParam() String sku,@RequestParam() int quantity) throws Exception{
+
+        try {
+            inventoryService.updateInventory(sku, quantity,"sustraer");
+
+            return new ResponseEntity<>("Inventory updated successfully",HttpStatus.CREATED);
+            
+        } catch (Exception e) {
+            return new ResponseEntity<>("Sku no encontrado",HttpStatus.BAD_REQUEST);
+        }
+
+        
+    }
+    
+
+    
     
 
     

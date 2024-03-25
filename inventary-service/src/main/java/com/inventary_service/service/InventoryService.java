@@ -2,6 +2,7 @@ package com.inventary_service.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import com.inventary_service.models.dto.OrderItemsRequest;
 import com.inventary_service.models.dto.Product;
 import com.inventary_service.repository.InventoryRepository;
 
+import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -55,5 +57,26 @@ public class InventoryService {
     }
 
     // TODO Inventario va a agregar y quitar cantidades
+
+    public void updateInventory(String sku,int quantity,String operation) throws Exception{
+            Optional<Inventory> optionaInventory = inventoryRepository.findBySku(sku);
+
+            if(optionaInventory.isEmpty()){
+                throw new NotFoundException();
+            }else{
+                Inventory inventory = optionaInventory.get();
+                switch (operation) {
+                    case "agregar" :
+                        inventory.setQuantity(inventory.getQuantity() + quantity);
+                        inventoryRepository.save(inventory);
+                        break;
+                
+                    case "sustraer" :
+                        inventory.setQuantity(inventory.getQuantity() - quantity);
+                        inventoryRepository.save(inventory);
+                        break;
+                }
+            }
+    }
     
 }
