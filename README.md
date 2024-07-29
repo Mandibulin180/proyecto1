@@ -1,7 +1,7 @@
 
 # Api para gestionar stock y pedidos
 
-Una api basada en microservicios que maneja las ordenes, el control del inventario y que notifica alertas y actualizaciones importantes
+Una api basada en microservicios que maneja las ordenes, el control del inventario y que notifica alertas y actualizaciones importantes mediante Kafka
 
 
 ## Tech Stack
